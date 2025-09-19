@@ -1,0 +1,519 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoderDojo Fianarantsoa - PTA Dashboard</title>
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light-gray min-h-screen font-inter">
+    <div class="flex flex-col lg:flex-row h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="fixed z-40 lg:static top-0 left-0 w-64 bg-white shadow-lg h-full transform -translate-x-full lg:translate-x-0 transition-transform duration-300 lg:block">
+            <div class="p-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-main-violet rounded-lg flex items-center justify-center">
+                        <i class="fas fa-code text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-gray-800">CoderDojo</h1>
+                        <p class="text-sm text-gray-500">Fianarantsoa</p>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="mt-6">
+                <div class="px-6 py-2">
+                    <div class="flex items-center space-x-3 p-3 rounded-lg bg-main-violet text-white cursor-pointer" onclick="showSection('dashboard')">
+                        <i class="fas fa-chart-pie"></i>
+                        <span class="font-medium">Tableau de bord</span>
+                    </div>
+                </div>
+                <div class="px-6 py-2">
+                    <div class="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-50 cursor-pointer" onclick="showSection('team')">
+                        <i class="fas fa-users"></i>
+                        <span class="font-medium">Mon équipe</span>
+                    </div>
+                </div>
+                <div class="px-6 py-2">
+                    <div class="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-50 cursor-pointer" onclick="showSection('sessions')">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="font-medium">Séances</span>
+                    </div>
+                </div>
+                <div class="px-6 py-2">
+                    <div class="flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-gray-50 cursor-pointer" onclick="showSection('reports')">
+                        <i class="fas fa-file-alt"></i>
+                        <span class="font-medium">Rapports</span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm border-b border-gray-200 flex items-center justify-between px-4 py-2 lg:px-6 lg:py-4">
+                <!-- Bouton hamburger (dans le header) -->
+                <button class="lg:hidden text-gray-700" onclick="toggleSidebar()">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <div class="text-base md:text-2xl flex items-center justify-between w-full">
+                    <h2 class="text-2xl font-semibold text-gray-800 ml-2" id="pageTitle">Coucou {{ user.username }}</h2>
+                    <div class="relative inline-block text-left">
+                        <!-- Avatar / Initiale + flèche -->
+                        <div>
+                            <button id="user-menu-button" type="button"
+                                class="flex items-center space-x-2 w-10 h-10 bg-light-violet rounded-full justify-center 
+                                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-purple
+                                    hover:brightness-110 transition">
+                                <span class="text-white font-medium text-sm">{{ user.username|slice:":1"|upper }}</span>
+                            </button>
+                        </div>
+
+                        <!-- Dropdown -->
+                        <div id="user-dropdown"
+                            class="hidden origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 transform transition-all duration-200 scale-95 opacity-0">
+                            <div class="py-1">
+                                <span class="block px-4 py-2 text-gray-700 font-medium text-sm" style="text-transform: capitalize;">{{ user.username }}</span>
+                                <form method="POST" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        class="w-full text-left px-4 py-2 text-gray-700 text-sm hover:bg-gray-100 rounded-md">
+                                        Se déconnecter
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6">
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="section">
+                    <!-- Overview Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm font-medium">Total Séances</p>
+                                    <p class="text-2xl sm:text-3xl font-bold text-gray-800 mt-1"> {{ total_seances }} </p>
+                                </div>
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-calendar text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm font-medium">Terminée</p>
+                                    <p class="text-2xl sm:text-3xl font-bold text-green-600 mt-1"> {{ seance_termines }} </p>
+                                </div>
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm font-medium">Reste</p>
+                                    <p class="text-2xl sm:text-3xl font-bold text-orange-600 mt-1"> {{ reste_a_faire }} </p>
+                                </div>
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-clock text-orange-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm font-medium">Equipes</p>
+                                    <p class="text-2xl sm:text-3xl font-bold text-main-violet mt-1"> {{ equipes }} </p>
+                                </div>
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-main-violet text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Section -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 sm:mb-6">Progression des équipes</h3>
+                        <div class="w-full overflow-x-auto">
+                            <canvas id="equipesChart" class="w-full h-48 sm:h-64"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Team Section -->
+                <div id="team" class="section hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-6">
+                            <div class="text-center">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-check-circle text-green-600 text-xl sm:text-2xl"></i>
+                                </div>
+                                <p class="text-xl sm:text-2xl font-bold text-green-600">{{ seance_termines }}</p>
+                                <p class="text-gray-500 text-sm">Séances Terminées</p>
+                            </div>
+
+                            <div class="text-center">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-hourglass-half fa-spin text-green-600 text-xl sm:text-2xl"></i>
+                                </div>
+                                <p class="text-xl sm:text-2xl font-bold text-green-600">{{ seance_en_cours }}</p>
+                                <p class="text-gray-500 text-sm">Séances en cours</p>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-clock text-orange-600 text-xl sm:text-2xl"></i>
+                                </div>
+                                <p class="text-xl sm:text-2xl font-bold text-orange-600">{{ reste_a_faire }}</p>
+                                <p class="text-gray-500 text-sm">Reste à faire</p>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-main-violet bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-chart-line text-main-violet text-xl sm:text-2xl"></i>
+                                </div>
+                                <p class="text-xl sm:text-2xl font-bold text-main-violet">{{progression}}</p>
+                                <p class="text-gray-500 text-sm">Progression</p>
+                            </div>
+                        </div>
+                        
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-main-violet h-3 rounded-full" style="width: {{progression}}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Membres de l'équipe</h4>
+                        <div class="space-y-3">
+                            {% for membre in membres_equipe %}
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-main-violet rounded-full flex items-center justify-center">
+                                        <span class="text-white font-medium text-sm">{{ membre.user.username|slice:":1"|upper }}</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800">{{ membre.user.username }}</p>
+                                        <p class="text-sm text-gray-500">{{ membre.role }} {% if membre.chef_equipe %} - Chef d'équipe {% endif %} </p>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="text-gray-500 text-sm">Aucun membre dans cette équipe.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sessions Section -->
+                <div id="sessions" class="section hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Toutes les séances</h3>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            {% for etat in etat_seances %}
+                                <div class="border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between" id="seance-{{ etat.id }}">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800"> {{ etat.seance.titre }} </h4>
+                                        <p class="text-gray-600 text-sm"> {{ etat.seance.objectif }} </p>
+
+                                        <!-- Bouton pour les conseils -->
+                                        <a href="{% url 'conseils_pedagogique' etat.seance.id %}" 
+                                        class="mt-2 inline-block px-3 py-1 bg-violet-primary text-white rounded hover:bg-violet-light text-sm">
+                                        Astuces
+                                        </a>
+                                    </div>
+
+                                    <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                                        <!-- Badge état -->
+                                        <span class="px-3 py-1 rounded-full text-sm font-medium" id="badge-{{ etat.id }}"
+                                            data-etat="{{ etat.etat }}"
+                                            style="background-color: {% if etat.etat == 'todo' %}#f3f4f6{% elif etat.etat == 'progress' %}#fef3c7{% else %}#d1fae5{% endif %};
+                                                    color: {% if etat.etat == 'todo' %}#1f2937{% elif etat.etat == 'progress' %}#78350f{% else %}#065f46{% endif %}">
+                                            {% if etat.etat == 'todo' %}À faire{% elif etat.etat == 'progress' %}En cours{% else %}Terminée{% endif %}
+                                        </span>
+
+                                        <!-- Bouton modifier -->
+                                        <button onclick="openModal({{ etat.id }}, '{{ etat.etat }}')" class="text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Modal avec animation -->
+                        <div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300">
+                            <div class="bg-white rounded-lg p-6 w-11/12 max-w-md transform transition-transform duration-300 scale-95">
+                                <h3 class="text-lg font-semibold mb-4">Modifier l'état de la séance</h3>
+                                <form id="etatForm">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="etat_id" id="etat_id">
+
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2">
+                                            <input type="radio" name="etat" value="todo" id="radio_todo">
+                                            À faire
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="radio" name="etat" value="progress" id="radio_progress">
+                                            En cours
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="radio" name="etat" value="done" id="radio_done">
+                                            Terminée
+                                        </label>
+                                    </div>
+
+                                    <div class="mt-4 flex justify-end gap-2">
+                                        <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+                                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded">Valider</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Section -->
+                <div id="reports" class="section hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-2">
+                            <h3 class="text-lg font-semibold text-gray-800">Rapport des équipes</h3>
+                            <button class="px-4 py-2 bg-main-violet text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+                                <i class="fas fa-plus mr-2"></i><a href="{% url 'rapport' %}">Faire un rapport</a>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            {% for rapport in rapports %}
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2">
+                                        <h4 class="font-semibold text-gray-800">{{rapport.seance}}</h4>
+                                        <span class="text-sm text-gray-500">{{ rapport.date }}</span>
+                                    </div>
+                                    <p class="text-gray-600 text-sm mb-3">{{ rapport.activites }}</p>
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-user mr-2"></i>
+                                            <span class="capitalize">{{ rapport.fait_par }} - {{ rapport.equipe }}</span>
+                                        </div>
+                                        <button class="text-main-violet hover:text-purple-700 text-sm font-medium"><a href="{% url 'voir_rapport' rapport.id %}">Voir Rapport </a></button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionName) {
+            // Masquer toutes les sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.add('hidden'));
+
+            // Afficher la section choisie
+            document.getElementById(sectionName).classList.remove('hidden');
+
+            // Réinitialiser l’état actif du menu
+            const navItems = document.querySelectorAll('nav > div > div');
+            navItems.forEach(item => {
+                item.classList.remove('bg-main-violet', 'text-white');
+                item.classList.add('text-gray-600', 'hover:bg-gray-50');
+            });
+
+            // Trouver l’élément du menu correspondant et l’activer
+            const activeItem = Array.from(navItems).find(item =>
+                item.getAttribute('onclick')?.includes(sectionName)
+            );
+            if (activeItem) {
+                activeItem.classList.remove('text-gray-600', 'hover:bg-gray-50');
+                activeItem.classList.add('bg-main-violet', 'text-white');
+            }
+
+            // Mettre à jour le titre
+            const titles = {
+                'dashboard': 'Tableau de bord',
+                'team': 'Mon équipe',
+                'sessions': 'Séances',
+                'reports': 'Rapport'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionName];
+
+            // Fermer le sidebar sur mobile après navigation
+            const sidebar = document.getElementById('sidebar');
+            if(window.innerWidth < 1024) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('equipesChart').getContext('2d');
+
+        // Couleurs variées pour distinguer les équipes
+        const colors = [
+            '#6D28D9', // violet
+            '#10B981', // vert
+            '#3B82F6', // bleu
+            '#F59E0B', // orange
+            '#EF4444', // rouge
+            '#8B5CF6', // violet clair
+            '#14B8A6'  // turquoise
+        ];
+
+        const labels = [{% for equipe in equipes_progression %}"{{ equipe.nom }}",{% endfor %}];
+        const data = [{% for equipe in equipes_progression %}{{ equipe.progression }},{% endfor %}];
+
+        const equipesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Progression (%)',
+                    data: data,
+                    backgroundColor: labels.map((_, i) => colors[i % colors.length]), // 🔥 couleur par équipe
+                    borderRadius: 6,
+                    barPercentage: 0.3,   // 🔥 largeur relative des barres
+                    categoryPercentage: 0.8 // 🔥 espacement entre groupes
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + "%";
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                weight: '600'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        function openModal(etatId, etatActuel) {
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('etat_id').value = etatId;
+
+            // Réinitialiser tous les radios
+            document.getElementById('radio_todo').checked = false;
+            document.getElementById('radio_progress').checked = false;
+            document.getElementById('radio_done').checked = false;
+
+            // Pré-sélectionner l'état actuel
+            if(etatActuel === 'todo') document.getElementById('radio_todo').checked = true;
+            if(etatActuel === 'progress') document.getElementById('radio_progress').checked = true;
+            if(etatActuel === 'done') document.getElementById('radio_done').checked = true;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        // Ajax pour mettre à jour l'état sans recharger
+        document.getElementById('etatForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const etatId = document.getElementById('etat_id').value;
+            const nouveauEtat = document.querySelector('input[name="etat"]:checked').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch("{% url 'modifier_etat_seance' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({etat_id: etatId, etat: nouveauEtat})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success){
+                    // Mettre à jour le badge
+                    const badge = document.getElementById('badge-' + etatId);
+                    badge.textContent = data.etat_affichage;
+                    badge.style.backgroundColor = data.bg_color;
+                    badge.style.color = data.text_color;
+
+                    closeModal();
+                }
+            });
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Responsive: masquer le sidebar au clic en dehors sur mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            if(window.innerWidth < 1024 && !sidebar.contains(e.target) && !e.target.closest('button.lg\\:hidden')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+    </script>
+    <!-- JS pour toggle dropdown -->
+    <script>
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userDropdown = document.getElementById('user-dropdown');
+        const userMenuArrow = document.getElementById('user-menu-arrow');
+
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // éviter propagation du clic
+            if (userDropdown.classList.contains('hidden')) {
+                userDropdown.classList.remove('hidden', 'scale-95', 'opacity-0');
+                userDropdown.classList.add('scale-100', 'opacity-100');
+                userMenuArrow.classList.add('rotate-180');
+            } else {
+                userDropdown.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => userDropdown.classList.add('hidden'), 200);
+                userMenuArrow.classList.remove('rotate-180');
+            }
+        });
+
+        // Fermer le dropdown si clic en dehors
+        window.addEventListener('click', (e) => {
+            if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => userDropdown.classList.add('hidden'), 200);
+                userMenuArrow.classList.remove('rotate-180');
+            }
+        });
+    </script>
+</body>
+</html>

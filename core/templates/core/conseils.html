@@ -1,0 +1,123 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <title>Zone Astuces Cours</title>
+    {% tailwind_css %}
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-purple': '#6D28D9',
+                        'light-purple': '#A78BFA',
+                        'main-violet': '#6D28D9',
+                        'light-violet': '#A78BFA',
+                        'light-gray': '#F3F4F6',
+                        'violet-primary': '#6D28D9',
+                        'violet-light': '#A78BFA'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(109, 40, 217, 0.1), 0 10px 10px -5px rgba(109, 40, 217, 0.04);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+        }
+        
+        .section-divider {
+            border-left: 3px solid #A78BFA;
+            padding-left: 1rem;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center">
+                <h1 class="text-3xl sm:text-4xl font-bold text-primary-purple mb-2">
+                    Zone Astuces Cours
+                </h1>
+                <p class="text-gray-600 text-lg">
+                    Des hacks de pro + des défis pratiques pour donner vie à tes cours !
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% for conseil in conseils %}
+        <div class="bg-white rounded-xl shadow-md card-hover overflow-hidden mb-6">
+            <div class="p-8">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-semibold text-primary-purple">
+                        {{ conseil.seance.titre }}
+                    </h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="section-divider">
+                        <h3 class="font-medium text-light-purple mb-3 text-lg">Bonnes vibes de conseils</h3>
+                        <ul class="text-gray-700 space-y-2">
+                            {% for rec in conseil.recommandations.splitlines %}
+                                <li>• {{ rec }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="section-divider">
+                        <h3 class="font-medium text-light-purple mb-3 text-lg">Exercice Pratique</h3>
+                        <ul class="text-gray-700 space-y-2">
+                            {% for ex in conseil.exercices_pratiques.splitlines %}
+                                <li>• {{ ex }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-center text-gray-500">Aucun conseil pédagogique disponible pour cette séance.</p>
+        {% endfor %}
+
+        <div class="mt-8 text-center">
+            <a href="{% url 'home' %}"
+            class="inline-block px-6 py-2 bg-primary-purple text-white font-semibold rounded-lg shadow
+                    hover:bg-light-purple transition">
+                <i class="fas fa-arrow-left"></i> Retour à l’accueil
+            </a>
+        </div>
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center text-gray-600">
+                <p>&copy; {{ now_year }} Coin des Conseils Pédago – pour toute l’équipe CoderDojo</p>
+            </div>
+        </div>
+    </footer>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98002faa629473de',t:'MTc1ODAyMzg0NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

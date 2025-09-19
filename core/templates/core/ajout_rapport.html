@@ -1,0 +1,303 @@
+
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Report - CoderDojo Fianarantsoa PTA</title>
+    {% tailwind_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'main-violet': '#6D28D9',
+                        'light-violet': '#A78BFA',
+                        'light-gray': '#F3F4F6'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-light-gray font-inter min-h-screen py-8">
+    <div class="max-w-2xl mx-auto px-4">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">+ Nouveau rapport</h1>
+            <p class="text-gray-600">Plan de Travail Annuel en un coup d’œil – CoderDojo Fianarantsoa</p>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div id="step1-indicator" class="flex items-center justify-center w-8 h-8 rounded-full bg-main-violet text-white text-sm font-semibold">
+                        1
+                    </div>
+                    <span id="step1-text" class="ml-3 text-sm font-medium text-main-violet">Sessions et activités</span>
+                </div>
+                <div class="flex-1 mx-4">
+                    <div class="h-1 bg-gray-200 rounded">
+                        <div id="progress-bar" class="h-1 bg-main-violet rounded transition-all duration-300" style="width: 50%"></div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div id="step2-indicator" class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-500 text-sm font-semibold">
+                        2
+                    </div>
+                    <span id="step2-text" class="ml-3 text-sm font-medium text-gray-500">Difficultés et remarques</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <form id="reportForm">
+                {% csrf_token %}
+                <!-- Step 1: Session & Activities -->
+                <div id="step1" class="step-content">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Sessions et activités</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Session Selection -->
+                        <div>
+                            <label for="seance" class="block text-sm font-medium text-gray-700 mb-2">
+                                Choisir une séance *
+                            </label>
+                            <select id="seance" name="seance" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-violet focus:border-transparent transition-all duration-200">
+                                <option value="">Choisir une seance...</option>
+                                {% for seance in seances %}
+                                <option value="{{ seance.id }}">Session {{ seance.numero }} - {{ seance.titre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Number of Students -->
+                        <div>
+                            <label for="nombre_eleves" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nombre d'élèves présents *
+                            </label>
+                            <input type="number" id="nombre_eleves" name="nombre_eleves" min="1" required 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-violet focus:border-transparent transition-all duration-200"
+                                   placeholder="Combien d'élèves ont assisté à la séance ?">
+                        </div>
+
+                        <!-- Activities -->
+                        <div>
+                            <label for="activites" class="block text-sm font-medium text-gray-700 mb-2">
+                                Activités et exercices*
+                            </label>
+                            <textarea id="activites" name="activites" rows="5" required
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-violet focus:border-transparent transition-all duration-200 resize-none"
+                                      placeholder="Decrire les activités que vous avez fais, les leçons, les exercices"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Difficulties & Comments -->
+                <div id="step2" class="step-content hidden">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Difficultés et commentaires</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Difficulties -->
+                        <div>
+                            <label for="difficultes" class="block text-sm font-medium text-gray-700 mb-2">
+                                Difficultés rencontrées
+                            </label>
+                            <textarea id="difficultes" name="difficultes" rows="4"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-violet focus:border-transparent transition-all duration-200 resize-none"
+                                      placeholder="Decrire les difficultés que vous avez rencotré durant la séance"></textarea>
+                        </div>
+
+                        <!-- Comments -->
+                        <div>
+                            <label for="commentaires" class="block text-sm font-medium text-gray-700 mb-2">
+                                Commentaires supplémentaires
+                            </label>
+                            <textarea id="commentaires" name="commentaires" rows="5"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-violet focus:border-transparent transition-all duration-200 resize-none"
+                                      placeholder="Share your observations, student engagement levels, suggestions for improvement, or any other relevant feedback..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                    <button type="button" id="prevBtn" class="hidden px-6 py-3 bg-light-violet text-white font-medium rounded-lg hover:bg-purple-400 transition-colors duration-200">
+                        Précedent
+                    </button>
+                    <div class="flex-1"></div>
+                    <button type="button" id="nextBtn" class="px-6 py-3 bg-main-violet text-white font-medium rounded-lg hover:bg-purple-800 transition-colors duration-200">
+                        Suivant
+                    </button>
+                    <button type="submit" id="submitBtn" class="hidden px-6 py-3 bg-main-violet text-white font-medium rounded-lg hover:bg-purple-800 transition-colors duration-200">
+                        Soummetre le rapport
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success Message (Hidden by default) -->
+        <div id="successMessage" class="hidden bg-green-50 border border-green-200 rounded-lg p-6 mt-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Super ! Rapport envoyé!</h3>
+                    <p class="text-sm text-green-700 mt-1">
+                        Top ! Ton rapport est maintenant dans le système de suivi PTA
+                    </p>
+
+                    <!-- Bouton retour -->
+                    <a href="{% url 'home' %}"
+                    class="inline-block mt-3 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-md shadow
+                            hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        <i class="fas fa-arrow-left"></i> Retour à l’accueil
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentStep = 1;
+    const totalSteps = 2;
+
+    // Get DOM elements
+    const step1Content = document.getElementById('step1');
+    const step2Content = document.getElementById('step2');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const progressBar = document.getElementById('progress-bar');
+    const step1Indicator = document.getElementById('step1-indicator');
+    const step2Indicator = document.getElementById('step2-indicator');
+    const step1Text = document.getElementById('step1-text');
+    const step2Text = document.getElementById('step2-text');
+    const form = document.getElementById('reportForm');
+    const successMessage = document.getElementById('successMessage');
+
+    // Navigation functions
+    function showStep(step) {
+        document.querySelectorAll('.step-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        if (step === 1) {
+            step1Content.classList.remove('hidden');
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+        } else if (step === 2) {
+            step2Content.classList.remove('hidden');
+            prevBtn.classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        }
+
+        updateProgressIndicator(step);
+    }
+
+    function updateProgressIndicator(step) {
+        const progressWidth = (step / totalSteps) * 100;
+        progressBar.style.width = progressWidth + '%';
+
+        if (step >= 1) {
+            step1Indicator.classList.remove('bg-gray-200', 'text-gray-500');
+            step1Indicator.classList.add('bg-main-violet', 'text-white');
+            step1Text.classList.remove('text-gray-500');
+            step1Text.classList.add('text-main-violet');
+        }
+
+        if (step >= 2) {
+            step2Indicator.classList.remove('bg-gray-200', 'text-gray-500');
+            step2Indicator.classList.add('bg-main-violet', 'text-white');
+            step2Text.classList.remove('text-gray-500');
+            step2Text.classList.add('text-main-violet');
+        } else {
+            step2Indicator.classList.add('bg-gray-200', 'text-gray-500');
+            step2Indicator.classList.remove('bg-main-violet', 'text-white');
+            step2Text.classList.add('text-gray-500');
+            step2Text.classList.remove('text-main-violet');
+        }
+    }
+
+    function validateStep1() {
+        const session = document.getElementById('seance').value;
+        const students = document.getElementById('nombre_eleves').value;
+        const activities = document.getElementById('activites').value.trim();
+
+        return session && students && activities;
+    }
+
+    // Event listeners navigation
+    nextBtn.addEventListener('click', function() {
+        if (currentStep === 1 && validateStep1()) {
+            currentStep = 2;
+            showStep(currentStep);
+        } else if (currentStep === 1) {
+            alert('Veuillez remplir tous les champs obligatoires avant de continuer.');
+        }
+    });
+
+    prevBtn.addEventListener('click', function() {
+        if (currentStep > 1) {
+            currentStep = 1;
+            showStep(currentStep);
+        }
+    });
+
+    // Initialize the form
+    showStep(1);
+
+    // Soumission du formulaire
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Sauvegarde des données dans sessionStorage
+        sessionStorage.setItem('seance', document.getElementById('seance').value);
+        sessionStorage.setItem('nombre_eleves', document.getElementById('nombre_eleves').value);
+        sessionStorage.setItem('activites', document.getElementById('activites').value);
+        sessionStorage.setItem('difficultes', document.getElementById('difficultes').value);
+        sessionStorage.setItem('commentaires', document.getElementById('commentaires').value);
+
+        // Préparation des données
+        const formData = new FormData(form);
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                form.classList.add('hidden');
+                successMessage.classList.remove('hidden');
+            } else {
+                alert(data.message || "Erreur lors de la soumission du rapport.");
+            }
+        })
+        .catch(error => {
+            alert("Erreur réseau : " + error.message);
+        });
+    });
+</script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97cff06fe34d739f',t:'MTc1NzUxNzkzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
